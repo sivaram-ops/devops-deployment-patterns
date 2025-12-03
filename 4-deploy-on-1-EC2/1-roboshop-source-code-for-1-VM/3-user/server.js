@@ -233,7 +233,7 @@ app.get('/history/:id', (req, res) => {
 
 // connect to Redis
 var redisClient = redis.createClient({
-    host: process.env.REDIS_HOST || 'redis'
+    host: process.env.REDIS_HOST || 'localhost'
 });
 
 redisClient.on('error', (e) => {
@@ -247,7 +247,7 @@ if (process.env.MONGO == 'true') {
 // set up Mongo
 function mongoConnect() {
     return new Promise((resolve, reject) => {
-        var mongoURL = process.env.MONGO_URL || 'mongodb://mongodb:27017/users';
+        var mongoURL = process.env.MONGO_URL || 'mongodb://localhost:27017/users';
         mongoClient.connect(mongoURL, (error, client) => {
             if(error) {
                 reject(error);
@@ -265,7 +265,7 @@ function mongoConnect() {
 if (process.env.DOCUMENTDB == 'true') {
 function mongoConnect() {
     return new Promise((resolve, reject) => {
-    var mongoURL = process.env.MONGO_URL || 'mongodb://username:password@mongodb:27017/users?tls=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false';
+    var mongoURL = process.env.MONGO_URL || 'mongodb://username:password@localhost:27017/users?tls=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false';
     var client = mongoClient.connect(mongoURL,
       {
         // Mutable & Immutable
@@ -301,7 +301,7 @@ function mongoLoop() {
 mongoLoop();
 
 // fire it up!
-const port = process.env.USER_SERVER_PORT || '8080';
+const port = process.env.USER_SERVER_PORT || '8082';
 app.listen(port, () => {
     logger.info('Started on port', port);
 });

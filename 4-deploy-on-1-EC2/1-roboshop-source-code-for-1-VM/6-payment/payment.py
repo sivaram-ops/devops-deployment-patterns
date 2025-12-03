@@ -23,8 +23,8 @@ from prometheus_client import Counter, Histogram
 app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
 
-CART = os.getenv('CART_HOST', 'cart')
-USER = os.getenv('USER_HOST', 'user')
+CART = os.getenv('CART_HOST', 'localhost')
+USER = os.getenv('USER_HOST', 'localhost')
 PAYMENT_GATEWAY = os.getenv('PAYMENT_GATEWAY', 'https://paypal.com/')
 
 # Prometheus
@@ -63,7 +63,7 @@ def pay(id):
 
     # check user exists
     try:
-        req = requests.get('http://{user}:8080/check/{id}'.format(user=USER, id=id))
+        req = requests.get('http://{user}:8082/check/{id}'.format(user=USER, id=id))
     except requests.exceptions.RequestException as err:
         app.logger.error(err)
         return str(err), 500
@@ -105,7 +105,7 @@ def pay(id):
     # add to order history
     if not anonymous_user:
         try:
-            req = requests.post('http://{user}:8080/order/{id}'.format(user=USER, id=id),
+            req = requests.post('http://{user}:8082/order/{id}'.format(user=USER, id=id),
                     data=json.dumps({'orderid': orderid, 'cart': cart}),
                     headers={'Content-Type': 'application/json'})
             app.logger.info('order history returned {}'.format(req.status_code))
@@ -115,7 +115,7 @@ def pay(id):
 
     # delete cart
     try:
-        req = requests.delete('http://{cart}:8080/cart/{id}'.format(cart=CART, id=id));
+        req = requests.delete('http://{cart}:8083/cart/{id}'.format(cart=CART, id=id));
         app.logger.info('cart delete returned {}'.format(req.status_code))
     except requests.exceptions.RequestException as err:
         app.logger.error(err)
