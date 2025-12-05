@@ -63,11 +63,11 @@ def pay(id):
 
     # check user exists
     try:
-        req = requests.get('http://{user}:8082/check/{id}'.format(user=USER, id=id))
+        req = requests.get('http://{user}:8080/check/{id}'.format(user=USER, id=id))
     except requests.exceptions.RequestException as err:
         app.logger.error(err)
         return str(err), 500
-# commenting the following 2 lines. and adding 3 new lines for the logic. this is tested & working.
+# commenting the following line. and adding 3 new lines for the logic. this is tested & working.
 #    if req.status_code == 200:
     if req.status_code != 200:
         app.logger.warn('User check failed: {}'.format(req.status_code))

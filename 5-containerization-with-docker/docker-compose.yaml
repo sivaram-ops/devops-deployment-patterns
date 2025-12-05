@@ -84,7 +84,7 @@ services:
 
   shipping:
     build: ./08-shipping-service
-    image: sivaram0101/shipping-roboshop-image:v2
+    image: sivaram0101/shipping-roboshop:v1
     container_name: shipping
     depends_on:
     - mysql
