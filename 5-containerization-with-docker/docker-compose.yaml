@@ -11,7 +11,7 @@ volumes:
 
 services:
   mongodb:
-    build: ./07-mongodb-service
+    build: ./02-mongodb-service
     image: sivaram0101/mongodb-roboshop:v1
     container_name: mongodb
     volumes:
@@ -20,7 +20,7 @@ services:
       type: volume
 
   redis:
-    build: ./08-redis-service
+    build: ./04-redis-service
     image: sivaram0101/redis-roboshop:v1
     container_name: redis
     volumes:
@@ -29,7 +29,7 @@ services:
       type: volume
 
   mysql:
-    build: ./09-mysql-service
+    build: ./07-mysql-service
     image: sivaram0101/mysql-roboshop:v1
     container_name: mysql
     environment:
@@ -60,42 +60,42 @@ services:
       type: volume
 
   catalogue:
-    build: ./02-catalogue-service
+    build: ./03-catalogue-service
     image: sivaram0101/catalogue-roboshop:v1
     container_name: catalogue
     depends_on:
     - mongodb
 
-  cart:
-    build: ./04-cart-service
-    image: sivaram0101/cart-roboshop:v1
-    container_name: cart
-    depends_on:
-    - catalogue
-    - redis
-
   user:
-    build: ./03-user-service
+    build: ./05-user-service
     image: sivaram0101/user-roboshop:v1
     container_name: user
     depends_on:
     - mongodb
     - redis
 
+  cart:
+    build: ./06-cart-service
+    image: sivaram0101/cart-roboshop:v1
+    container_name: cart
+    depends_on:
+    - catalogue
+    - redis
+
   shipping:
-    build: ./05-shipping-service
+    build: ./08-shipping-service
     image: sivaram0101/shipping-roboshop-image:v2
     container_name: shipping
     depends_on:
     - mysql
 
   payment:
-    build: ./06-payment-service
+    build: ./09-payment-service
     image: sivaram0101/payment-roboshop:v1
     container_name: payment
     environment:
-      AMQP_USER=${AMQP_USER}
-      AMQP_PASS=${AMQP_PASS}
+      AMQP_USER: ${AMQP_USER}
+      AMQP_PASS: ${AMQP_PASS}
     depends_on:
     - rabbitmq
     - user
