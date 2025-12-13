@@ -3,30 +3,30 @@ networks:
     name: roboshop
     external: true
 
-volumes:
-  mongodb:
-  redis:
-  mysql:
-  rabbitmq:
+# volumes:
+#   mongodb:
+#   redis:
+#   mysql:
+#   rabbitmq:
 
 services:
   mongodb:
     build: ./02-mongodb-service
     image: sivaram0101/mongodb-roboshop:v1
     container_name: mongodb
-    volumes:
-    - source: mongodb
-      target: /data/db
-      type: volume
+    # volumes:
+    # - source: mongodb
+    #   target: /data/db
+    #   type: volume
 
   redis:
     build: ./04-redis-service
     image: sivaram0101/redis-roboshop:v1
     container_name: redis
-    volumes:
-    - source: redis
-      target: /data
-      type: volume
+    # volumes:
+    # - source: redis
+    #   target: /data
+    #   type: volume
 
   mysql:
     build: ./07-mysql-service
@@ -37,10 +37,10 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    volumes:
-    - source: mysql
-      target: /var/lib/mysql
-      type: volume
+    # volumes:
+    # - source: mysql
+    #   target: /var/lib/mysql
+    #   type: volume
 #    Networks:
 #      - networkname
 
@@ -54,10 +54,10 @@ services:
     ports:
     - "15672:15672" # Management Dashboard port (15672)
     - "5672:5672" # AMQP protocol port (5672)
-    volumes:
-    - source: rabbitmq
-      target: /var/lib/rabbitmq
-      type: volume
+    # volumes:
+    # - source: rabbitmq
+    #   target: /var/lib/rabbitmq
+    #   type: volume
 
   catalogue:
     build: ./03-catalogue-service
