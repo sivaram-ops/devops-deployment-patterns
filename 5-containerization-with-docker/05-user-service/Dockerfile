@@ -15,3 +15,5 @@ ENV MONGO='true'
 COPY --from=build-direr /build-dir/node_modules ./node_modules
 COPY server.js .
 CMD ["node", "server.js"]
+# Environment=REDIS_HOST=redis
+# Environment=MONGO_URL="mongodb://mongodb:27017/users"

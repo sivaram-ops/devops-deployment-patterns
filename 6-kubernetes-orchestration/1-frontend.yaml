@@ -1,0 +1,71 @@
+# service 
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  type: NodePort
+  selector:
+      app: frontend-roboshop
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 30000
+---
+
+# deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roboshop-frontend
+  labels:
+    app: roboshop-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-roboshop
+  template:
+    metadata:
+      labels:
+        app: frontend-roboshop
+    spec:
+      containers:
+      - name: frontend-container
+        image: sivaram0101/frontend-roboshop:v1
+        # command: ["nginx", "-g", "daemon off;"]
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: 100Mi
+            cpu: 100m
+          limits:
+            memory: 250Mi
+            cpu: 250m
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 2
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 2
+        startupProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 2
+---

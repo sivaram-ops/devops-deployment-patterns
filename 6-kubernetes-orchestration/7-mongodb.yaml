@@ -1,0 +1,115 @@
+---
+# Headless Service.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  labels:
+    app: mongodb
+spec:
+  clusterIP: None
+  selector:
+      app: mongodb-roboshop
+  ports:
+  - protocol: TCP
+    port: 27017
+    targetPort: 27017
+---
+
+# Persistent volume.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongodb-pv
+  labels:
+    app: mongodb
+spec:
+  storageClassName: roboshop-sc
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: /backup/mongodb
+  persistentVolumeReclaimPolicy: Retain
+---
+
+# Persistent Volume Claim.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc
+spec:
+  storageClassName: roboshop-sc
+  resources:
+    requests:
+      storage: 1Gi
+  accessModes:
+  - ReadWriteOnce
+---
+
+# Stateful Set
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: roboshop-mongodb
+  labels:
+    app: roboshop-mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb-roboshop
+  serviceName: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb-roboshop
+    spec:
+      containers:
+      - name: mongodb-container
+        image: sivaram0101/mongodb-roboshop:v1
+        ports:
+        - containerPort: 27017
+          name: mongo-port
+        resources:
+          requests:
+            memory: "300Mi"
+            cpu: 300m
+          limits:
+            memory: "500Mi"
+            cpu: 500m
+        startupProbe:
+          tcpSocket:
+            port: 27017
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 24
+        livenessProbe:
+          tcpSocket:
+            port: 27017
+          periodSeconds: 30
+          failureThreshold: 3
+        readinessProbe:
+          tcpSocket:
+            port: 27017
+          periodSeconds: 10
+          failureThreshold: 1
+        volumeMounts:
+        - name: mongodb-stateful-volume
+          mountPath: /data/db
+      volumes:
+      - name: mongodb-stateful-volume
+        persistentVolumeClaim:
+          claimName: mongodb-pvc
+---
+# (or)
+# volumeClaimTemplates:
+#   - metadata:
+#       name: mongo-persistent-storage
+#     spec:
+#       accessModes: [ "ReadWriteOnce" ]
+#       storageClassName: manual-storage
+#       resources:
+#         requests:
+#           storage: 2Gi

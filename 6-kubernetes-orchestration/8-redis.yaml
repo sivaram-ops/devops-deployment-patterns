@@ -1,0 +1,97 @@
+# redis-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: redis
+spec:
+  clusterIP: None
+  selector:
+    app: redis-roboshop
+  ports:
+  - protocol: TCP
+    port: 6379
+    targetPort: 6379
+---
+
+# stateful set
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: roboshop-redis
+  labels:
+    app: roboshop-redis
+spec:
+  serviceName: redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-roboshop
+  template:
+    metadata:
+      labels:
+        app: redis-roboshop
+    spec:
+      containers:
+      - name: redis-container
+        image: sivaram0101/redis-roboshop:v1
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+#        - name: redis-pvc-template
+        - name: redis-app-data
+          mountPath: /data
+      volumes:
+      - name: redis-app-data
+        persistentVolumeClaim:
+          claimName: redis-pvc
+
+# volume claim templates is working fine. but commenting below 'pvc template' and uncommenting 'pvc' to test using volumes.
+  # volumeClaimTemplates:
+  #   - metadata:
+  #       name: redis-pvc-template # This creates the PVCs (e.g., redis-pvc-template-0)
+  #       labels:
+  #         app: redis-pvc-template-app
+  #     spec:
+  #       storageClassName: roboshop-sc
+  #       accessModes:
+  #       - ReadWriteOnce
+  #       resources:
+  #         requests:
+  #           storage: 1Gi
+---
+
+# redis-pvc
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  labels: 
+    app: redis-pvc
+spec:
+  storageClassName: roboshop-sc
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+
+# redis-pv
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: redis-pv
+  labels:
+    app: redis-pv
+spec:
+  storageClassName: roboshop-sc
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /backup/redis
+  persistentVolumeReclaimPolicy: Retain
+---

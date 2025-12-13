@@ -1,0 +1,60 @@
+# service:
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalogue
+spec:
+  selector:
+    app: catalogue-roboshop
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
+
+# deployment:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roboshop-catalogue
+  labels:
+    app: roboshop-catalogue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalogue-roboshop
+  template:
+    metadata:
+      labels:
+        app: catalogue-roboshop
+    spec:
+      containers:
+      - name: catalogue-container
+        image: sivaram0101/catalogue-roboshop:v1
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "100m"
+          limits:
+            memory: "250Mi"
+            cpu: "250m"
+        startupProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 24
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          periodSeconds: 30
+          failureThreshold: 3
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          periodSeconds: 10
+          failureThreshold: 1
+---

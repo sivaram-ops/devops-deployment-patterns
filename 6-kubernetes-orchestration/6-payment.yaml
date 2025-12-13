@@ -1,0 +1,65 @@
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment
+spec:
+  selector:
+    app: payment-roboshop
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
+
+# deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roboshop-payment
+  labels:
+    app: roboshop-payment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-roboshop
+  template:
+    metadata:
+      labels:
+        app: payment-roboshop
+    spec:
+      containers:
+      - name: payment-container
+        image: sivaram0101/payment-roboshop:v1
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "300Mi"
+            cpu: "300m"
+          limits:
+            memory: "500Mi"
+            cpu: "500m"
+        env:
+          - name: AMQP_USER
+            value: roboshop
+          - name: AMQP_PASS
+            value: roboshop123
+        startupProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 24
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          periodSeconds: 30
+          failureThreshold: 3
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          periodSeconds: 10
+          failureThreshold: 1
+---

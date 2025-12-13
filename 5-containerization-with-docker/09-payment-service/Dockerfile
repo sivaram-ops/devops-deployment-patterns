@@ -8,3 +8,11 @@ COPY *.py /app/
 COPY payment.ini /app/
 EXPOSE 8080
 CMD ["uwsgi", "--ini", "payment.ini"]
+
+# Environment=CART_HOST=cart
+# Environment=CART_PORT=8080
+# Environment=USER_HOST=user
+# Environment=USER_PORT=8080
+# Environment=AMQP_HOST=rabbitmq
+# Environment=AMQP_USER=roboshop
+# Environment=AMQP_PASS=roboshop123

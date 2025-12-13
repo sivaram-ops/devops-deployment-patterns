@@ -1,0 +1,140 @@
+# Headless service
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  # labels:
+  #   app: mysql
+spec:
+  clusterIP: None
+  selector:
+    app: mysql-roboshop
+  ports:
+  - protocol: TCP
+    port: 3306
+    targetPort: 3306
+---
+
+# statefulset
+# note: i yet to pass the variable values using configmaps and secrets.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: roboshop-mysql
+  labels:
+    app: roboshop-mysql
+spec:
+  serviceName: mysql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-roboshop
+  template:
+    metadata:
+      labels:
+        app: mysql-roboshop
+    spec:
+      containers:
+      - name: mysql-container
+        image: sivaram0101/mysql-roboshop:v1
+        env:
+        - name: MYSQL_DATABASE
+          value: cities
+        - name: MYSQL_USER
+          value: shipping
+        - name: MYSQL_PASSWORD
+          value: RoboShop@1
+        - name: MYSQL_ROOT_PASSWORD
+          value: RoboShop@1
+        ports:
+        - containerPort: 3306
+        # resources:
+        #   requests:
+        #     memory: 2048Mi
+        #     cpu: 3000m
+        #   limits:
+        #     memory: 4096Mi
+        #     cpu: 4000m
+        # startupProbe:
+        #   tcpSocket:
+        #     port: 3306
+        #   initialDelaySeconds: 10
+        #   periodSeconds: 30
+        #   successThreshold: 1
+        #   failureThreshold: 30
+        # readinessProbe:
+        #   tcpSocket:
+        #     port: 3306
+        #   initialDelaySeconds: 10
+        #   periodSeconds: 30
+        #   successThreshold: 1
+        #   failureThreshold: 5
+        # livenessProbe:
+        #   tcpSocket:
+        #     port: 3306
+        #   initialDelaySeconds: 180
+        #   periodSeconds: 30
+        #   successThreshold: 1
+        #   failureThreshold: 3
+        volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+        # - name: mysql-config
+        #   mountPath: /etc/mysql/conf.d
+      volumes:
+      - name: mysql-data
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+      # - name: mysql-config
+      #   configMap:
+      #     name: mysql-low-memory-config
+---
+
+# mysql pvc
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  storageClassName: roboshop-sc
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+
+# mysql pv
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv
+spec:
+  storageClassName: roboshop-sc
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /backup/mysql
+  persistentVolumeReclaimPolicy: Delete
+---
+
+# config map
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: roboshop-config-map
+  labels:
+    app: configmaps
+immutable: false
+data:
+  MYSQL_DATABASE: cities
+  MYSQL_USER: shipping
+  MYSQL_PASSWORD: RoboShop@1
+  MYSQL_ROOT_PASSWORD: RoboShop@1
+  RABBITMQ_DEFAULT_USER: roboshop
+  RABBITMQ_DEFAULT_PASS: roboshop123
+  AMQP_USER: roboshop
+  AMQP_PASS: roboshop123
+---

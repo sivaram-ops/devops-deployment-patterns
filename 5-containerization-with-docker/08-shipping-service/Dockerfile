@@ -12,3 +12,7 @@ WORKDIR /shipping
 ENV CART_ENDPOINT=cart:8080
 COPY --from=build /shipping/target/shipping-1.0.jar shipping.jar
 CMD [ "java", "-XX:+ExitOnOutOfMemoryError", "-XX:MaxRAMPercentage=80.0", "-jar", "shipping.jar" ]
+
+# Environment=CART_ENDPOINT=cart:8080
+# Environment=DB_HOST=mysql
+# Environment=DBHOST=mysql

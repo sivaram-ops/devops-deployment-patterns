@@ -15,3 +15,5 @@ ENV MONGO='true'
 COPY --from=builder /build-dir/node_modules ./node_modules
 COPY server.js .
 CMD ["node", "server.js"]
+# Environment=MONGO=true
+# Environment=MONGO_URL="mongodb://mongodb:27017/catalogue"

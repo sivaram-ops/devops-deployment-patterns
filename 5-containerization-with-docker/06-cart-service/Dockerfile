@@ -15,3 +15,6 @@ ENV MONGO='true'
 COPY --from=builder /build-dir/node_modules ./node_modules
 COPY server.js .
 CMD ["node", "server.js"]
+# here i didn't defined other env variables. in version 2 image, i will add them.
+# Environment=REDIS_HOST=redis
+# Environment=CATALOGUE_HOST=catalogue
